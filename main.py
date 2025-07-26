@@ -68,7 +68,13 @@ if __name__ == "__main__":
 
     def poll_active_window():
         """Poll the active window every 100 ms and reposition MainWindow once the
-        target window has been stable (no geometry changes) for ≥ 300 ms."""
+        target window has been stable (no geometry changes) for ≥ 300 ms.
+        Skip repositioning if the panel is being interactively moved."""
+        
+        # Skip automatic repositioning while user is moving the panel
+        if main_window.is_being_interactively_moved():
+            return
+            
         info = app_detector.get_active_window_info()
         geom = info.get("geometry", {})
         geom_tuple = (
@@ -91,9 +97,9 @@ if __name__ == "__main__":
             if geom_tuple != poll_state["last_docked_geom"] and None not in geom_tuple:
                 poll_state["last_docked_geom"] = geom_tuple
 
-                # Align MainWindow top edge with active window top edge once stable.
+                # Align MainWindow with active window position and size once stable.
                 # Use the dedicated helper which safely stops any running animation
-                # and caches the position so future slide operations do not re-animate.
+                # and positions the panel to match the active window.
                 main_window.reposition_to_window(geom)
 
     poll_timer.timeout.connect(poll_active_window)
