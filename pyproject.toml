@@ -1,0 +1,11 @@
+[project]
+name = "wingman"
+version = "0.1.0"
+description = "A small documentation (man, -h, online) helper that 
+automatically and configurably provides documentation to the user in 
+a proactive manner to avoid the need to interrupt the 
+terminal session to pull up `man` for example"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = certifi, charset-normalizer, idna, pyqt6, pyqt6-qt6, pyqt6-sip, python-xlib requests six urllib3
+'smol and useful'
