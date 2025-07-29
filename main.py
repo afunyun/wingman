@@ -38,11 +38,21 @@ if __name__ == "__main__":
     app_detector = AppDetector()
     doc_retriever = DocRetriever(config)
 
-    main_window = MainWindow()
+    main_window = MainWindow(doc_retriever)
     # Initialize dock at top so animation has valid start/end values
     main_window.set_position("top")
 
     app_detector.app_changed.connect(main_window.set_app_name)
+    # Connect auto-documentation handler to app detection signal
+    def handle_app_change_for_docs(name, geometry):
+        # Ignore self-references to prevent infinite loop
+        if name and name.lower() not in ['wingman', 'main.py', 'python', 'python3', 'python3.11', 'python3.12', 'pythonw']:
+            # Also check for partial matches that could indicate this application
+            name_lower = name.lower()
+            if not any(term in name_lower for term in ['wingman', 'python']):
+                main_window.handle_auto_documentation(name)
+
+    app_detector.app_changed.connect(handle_app_change_for_docs)
 
     def handle_command():
         command = main_window.command_input.text()
