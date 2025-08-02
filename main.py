@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCursor
 from src.ui.main_window import MainWindow
@@ -67,54 +67,89 @@ if __name__ == "__main__":
 
     system_tray = SystemTray(app, main_window)
 
-    # Active window geometry polling logic (replaces mouse-edge detection)
-    poll_timer = QTimer()
-    # Track geometry stability across polls
-    poll_state = {
-        "last_geom": None,          # Tuple (x, y, w, h) from previous poll
-        "stable_count": 0,          # Number of consecutive polls with unchanged geometry
-        "last_docked_geom": None    # Geometry we most recently aligned to
-    }
+    if not app_detector.tracking_supported():
+        # Disable auto-positioning UI and restore manual position
+        main_window.auto_positioning_enabled = False
+        main_window.update_toggle_button_text()
 
-    def poll_active_window():
-        """Poll the active window every 100 ms and reposition MainWindow once the
-        target window has been stable (no geometry changes) for ≥ 300 ms.
-        Skip repositioning if the panel is being interactively moved."""
-        
-        # Skip automatic repositioning while user is moving the panel
-        if main_window.is_being_interactively_moved():
-            return
-            
-        info = app_detector.get_active_window_info()
-        geom = info.get("geometry", {})
-        geom_tuple = (
-            geom.get("x"),
-            geom.get("y"),
-            geom.get("width"),
-            geom.get("height"),
-        )
-
-        # Update stability counter
-        if geom_tuple == poll_state["last_geom"]:
-            poll_state["stable_count"] += 1
+        saved_geom = config.get("window_geometry")
+        if saved_geom:
+            msg = QMessageBox(main_window)
+            msg.setWindowTitle("Wingman positioning")
+            msg.setText(
+                "Active window tracking is unavailable on this Wayland session.\n"
+                "Use the previously saved panel position or center on screen?"
+            )
+            use_saved = msg.addButton("Use Saved", QMessageBox.ButtonRole.YesRole)
+            center_btn = msg.addButton("Center", QMessageBox.ButtonRole.NoRole)
+            msg.setDefaultButton(use_saved)
+            msg.exec()
+            if msg.clickedButton() == center_btn:
+                saved_geom = None
         else:
-            poll_state["stable_count"] = 1
-            poll_state["last_geom"] = geom_tuple
+            QMessageBox.information(
+                main_window,
+                "Wingman positioning",
+                "Active window tracking is unavailable on this Wayland session.\n"
+                "The panel will start centered; move it to your preferred location and "
+                "it will be remembered.",
+            )
 
-        # If stable for 3 consecutive polls (~300 ms)
-        if poll_state["stable_count"] >= 3:
-            # Avoid redundant repositioning for the same geometry
-            if geom_tuple != poll_state["last_docked_geom"] and None not in geom_tuple:
-                poll_state["last_docked_geom"] = geom_tuple
+        main_window.apply_manual_position(saved_geom)
 
-                # Align MainWindow with active window position and size once stable.
-                # Use the dedicated helper which safely stops any running animation
-                # and positions the panel to match the active window.
-                main_window.reposition_to_window(geom)
+        def save_manual_position():
+            config.set("window_geometry", list(main_window.geometry_tuple()))
 
-    poll_timer.timeout.connect(poll_active_window)
-    poll_timer.start(100)  # Poll every 100 ms for geometry changes
+        app.aboutToQuit.connect(save_manual_position)
+
+    else:
+        # Active window geometry polling logic (replaces mouse-edge detection)
+        poll_timer = QTimer()
+        # Track geometry stability across polls
+        poll_state = {
+            "last_geom": None,          # Tuple (x, y, w, h) from previous poll
+            "stable_count": 0,          # Number of consecutive polls with unchanged geometry
+            "last_docked_geom": None    # Geometry we most recently aligned to
+        }
+
+        def poll_active_window():
+            """Poll the active window every 100 ms and reposition MainWindow once the
+            target window has been stable (no geometry changes) for ≥ 300 ms.
+            Skip repositioning if the panel is being interactively moved."""
+
+            # Skip automatic repositioning while user is moving the panel
+            if main_window.is_being_interactively_moved():
+                return
+
+            info = app_detector.get_active_window_info()
+            geom = info.get("geometry", {})
+            geom_tuple = (
+                geom.get("x"),
+                geom.get("y"),
+                geom.get("width"),
+                geom.get("height"),
+            )
+
+            # Update stability counter
+            if geom_tuple == poll_state["last_geom"]:
+                poll_state["stable_count"] += 1
+            else:
+                poll_state["stable_count"] = 1
+                poll_state["last_geom"] = geom_tuple
+
+            # If stable for 3 consecutive polls (~300 ms)
+            if poll_state["stable_count"] >= 3:
+                # Avoid redundant repositioning for the same geometry
+                if geom_tuple != poll_state["last_docked_geom"] and None not in geom_tuple:
+                    poll_state["last_docked_geom"] = geom_tuple
+
+                    # Align MainWindow with active window position and size once stable.
+                    # Use the dedicated helper which safely stops any running animation
+                    # and positions the panel to match the active window.
+                    main_window.reposition_to_window(geom)
+
+        poll_timer.timeout.connect(poll_active_window)
+        poll_timer.start(100)  # Poll every 100 ms for geometry changes
 
     app.aboutToQuit.connect(app_detector.stop)
-
     sys.exit(app.exec())
