@@ -1,11 +1,47 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "wingman"
 version = "0.1.0"
-description = "A small documentation (man, -h, online) helper that 
-automatically and configurably provides documentation to the user in 
-a proactive manner to avoid the need to interrupt the 
-terminal session to pull up `man` for example"
+description = "A small documentation (man, -h, online) helper that automatically and configurably provides documentation to the user in a proactive manner to avoid the need to interrupt the terminal session to pull up `man` for example"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = certifi, charset-normalizer, idna, pyqt6, pyqt6-qt6, pyqt6-sip, python-xlib requests six urllib3
-'smol and useful'
+dependencies = [
+    "certifi>=2025.7.14",
+    "charset-normalizer>=3.4.2",
+    "idna>=3.10",
+    "pyqt6>=6.9.1",
+    "pyqt6-qt6>=6.9.1",
+    "pyqt6-sip>=13.10.2",
+    "python-xlib>=0.33",
+    "requests>=2.32.4",
+    "six>=1.17.0",
+    "urllib3>=2.5.0"
+]
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: POSIX :: Linux"
+]
+
+[project.scripts]
+wingman = "proto:main"
+
+[project.urls]
+"Homepage" = "https://github.com/afunyun/wingman"
+"Bug Reports" = "https://github.com/afunyun/wingman/issues"
+"Source" = "https://github.com/afunyun/wingman"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.txt", "*.md"]
