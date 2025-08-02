@@ -33,7 +33,7 @@ classifiers = [
 ]
 
 [project.scripts]
-wingman = "proto:main"
+wingman = "main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/afunyun/wingman"

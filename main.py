@@ -31,7 +31,8 @@ class Config:
         with open(self.path, 'w') as f:
             json.dump(self.data, f, indent=4)
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the wingman application."""
     app = QApplication(sys.argv)
 
     config = Config()
@@ -118,3 +119,7 @@ if __name__ == "__main__":
     app.aboutToQuit.connect(app_detector.stop)
 
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

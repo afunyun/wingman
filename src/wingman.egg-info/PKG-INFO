@@ -1,0 +1,32 @@
+Metadata-Version: 2.4
+Name: wingman
+Version: 0.1.0
+Summary: A small documentation (man, -h, online) helper that automatically and configurably provides documentation to the user in a proactive manner to avoid the need to interrupt the terminal session to pull up `man` for example
+Author-email: Your Name <your.email@example.com>
+Project-URL: Homepage, https://github.com/afunyun/wingman
+Project-URL: Bug Reports, https://github.com/afunyun/wingman/issues
+Project-URL: Source, https://github.com/afunyun/wingman
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: certifi>=2025.7.14
+Requires-Dist: charset-normalizer>=3.4.2
+Requires-Dist: idna>=3.10
+Requires-Dist: pyqt6>=6.9.1
+Requires-Dist: pyqt6-qt6>=6.9.1
+Requires-Dist: pyqt6-sip>=13.10.2
+Requires-Dist: python-xlib>=0.33
+Requires-Dist: requests>=2.32.4
+Requires-Dist: six>=1.17.0
+Requires-Dist: urllib3>=2.5.0
+
+messing around with man pages now that i've discovered them
+
+## Plans: 
+
+Basically this should spawn a small window attached to a given process (based on cursor focus) that displays the relevant man pages for said application. I dunno why, seemed neat. It is currently partially working but the positioning is way off (auto position is supposed to attach to the window but usually goes to the top left of whatever monitor you're using at the time) and the man pages are horribly not focused. It also cannot be resized yet. 
