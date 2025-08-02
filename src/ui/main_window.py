@@ -88,6 +88,34 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
         self.animation.setDuration(300)
 
+    def apply_manual_position(self, geometry: tuple[int, int, int, int] | None = None):
+        """Place the panel using a stored geometry or center it on screen.
+
+        Parameters
+        ----------
+        geometry:
+            Tuple ``(x, y, width, height)`` to restore.  When ``None`` the
+            panel is centered on the primary screen using its default size.
+        """
+        if geometry:
+            x, y, w, h = geometry
+            self.setGeometry(x, y, w, h)
+            return
+
+        screen = QGuiApplication.primaryScreen()
+        if screen is None:
+            return
+        area = screen.availableGeometry()
+        w, h = 600, 200
+        x = area.x() + (area.width() - w) // 2
+        y = area.y() + (area.height() - h) // 2
+        self.setGeometry(x, y, w, h)
+
+    def geometry_tuple(self) -> tuple[int, int, int, int]:
+        """Return the current window geometry as ``(x, y, width, height)``."""
+        rect = self.geometry()
+        return rect.x(), rect.y(), rect.width(), rect.height()
+
     def mousePressEvent(self, event):
         """Track when the panel is being moved interactively"""
         if event.button() == Qt.MouseButton.LeftButton:
@@ -233,21 +261,18 @@ class MainWindow(QMainWindow):
         target_x = target_geometry.get("x", 0)
         target_y = target_geometry.get("y", 0)
         target_width = target_geometry.get("width", 600)
+        target_height = target_geometry.get("height", 0)
 
-        # Find the screen that contains the target window
-        origin_pt = QPoint(target_x, target_y)
-        target_screen = None
-        for screen in QGuiApplication.screens():
-            if screen and screen.geometry().contains(origin_pt):
-                target_screen = screen
-                break
-        
+        # Find the screen that contains the *center* of the target window. Using
+        # the centre rather than the top-left corner avoids ambiguity for
+        # windows straddling monitors and works with negative coordinates.
+        origin_pt = QPoint(target_x + target_width // 2, target_y + target_height // 2)
+        target_screen = QGuiApplication.screenAt(origin_pt)
         if target_screen is None:
             target_screen = QGuiApplication.primaryScreen()
-        
         if target_screen is None:
             return  # No screen available, can't position
-            
+
         screen_geom = target_screen.geometry()
 
         # Calculate panel dimensions - use target window width but cap at reasonable size
