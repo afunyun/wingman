@@ -4,10 +4,10 @@ import json
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCursor
-from src.ui.main_window import MainWindow
-from src.ui.system_tray import SystemTray
-from src.core.app_detector import LinuxAppDetector as AppDetector
-from src.core.doc_retriever import DocRetriever
+from ui.main_window import MainWindow
+from ui.system_tray import SystemTray
+from core.app_detector import LinuxAppDetector as AppDetector
+from core.doc_retriever import DocRetriever
 
 class Config:
     def __init__(self, path='config.json'):

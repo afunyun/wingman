@@ -3,12 +3,12 @@ Name: wingman
 Version: 0.1.0
 Summary: A small documentation (man, -h, online) helper that automatically and configurably provides documentation to the user in a proactive manner to avoid the need to interrupt the terminal session to pull up `man` for example
 Author-email: Your Name <your.email@example.com>
+License-Expression: MIT
 Project-URL: Homepage, https://github.com/afunyun/wingman
 Project-URL: Bug Reports, https://github.com/afunyun/wingman/issues
 Project-URL: Source, https://github.com/afunyun/wingman
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
-Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Operating System :: POSIX :: Linux
