@@ -34,7 +34,7 @@ class SystemTray:
         position_menu.addAction(bottom_action)
 
         self.menu.addSeparator()
-
+7
         exit_action = QAction("Exit", self.app)
         exit_action.triggered.connect(self.app.quit)
         self.menu.addAction(exit_action)
