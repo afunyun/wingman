@@ -1,12 +1,15 @@
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon, QAction
 
+
 class SystemTray:
     def __init__(self, app, main_window):
         self.app = app
         self.main_window = main_window
 
-        self.tray_icon = QSystemTrayIcon(QIcon.fromTheme("applications-utilities"), self.app)
+        self.tray_icon = QSystemTrayIcon(
+            QIcon.fromTheme("applications-utilities"), self.app
+        )
         self.tray_icon.setToolTip("WingMAN")
 
         self.menu = QMenu()
@@ -46,5 +49,4 @@ class SystemTray:
             self.main_window.show()
 
     def open_settings(self):
-        # Placeholder for settings dialog
         pass

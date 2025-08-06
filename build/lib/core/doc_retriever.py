@@ -1,5 +1,7 @@
 import subprocess
 import requests
+from requests import RequestException
+
 
 def get_man_page(command: str) -> str | None:
     """
@@ -21,6 +23,7 @@ def get_man_page(command: str) -> str | None:
         return result.stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
+
 
 def get_help_output(command: str) -> str | None:
     """
@@ -45,6 +48,7 @@ def get_help_output(command: str) -> str | None:
             continue
     return None
 
+
 def get_online_docs(url: str) -> str | None:
     """
     Fetches online documentation from a URL.
@@ -58,9 +62,10 @@ def get_online_docs(url: str) -> str | None:
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.text
-    except requests.exceptions.RequestException:
+    except RequestException:
         return None
+        return None
+
 
 def format_documentation(title: str, content: str) -> str:
     """
@@ -74,6 +79,7 @@ def format_documentation(title: str, content: str) -> str:
         The formatted documentation.
     """
     return f"--- {title} ---\n\n{content}"
+
 
 class DocRetriever:
     def __init__(self, config):

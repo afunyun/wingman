@@ -1,6 +1,7 @@
 import subprocess
 import requests
 
+
 def get_man_page(command: str) -> str | None:
     """
     Executes `man <command>` and captures the output.
@@ -21,6 +22,7 @@ def get_man_page(command: str) -> str | None:
         return result.stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
+
 
 def get_help_output(command: str) -> str | None:
     """
@@ -45,6 +47,7 @@ def get_help_output(command: str) -> str | None:
             continue
     return None
 
+
 def get_online_docs(url: str) -> str | None:
     """
     Fetches online documentation from a URL.
@@ -62,6 +65,7 @@ def get_online_docs(url: str) -> str | None:
     except requests.exceptions.RequestException:
         return None
 
+
 def format_documentation(title: str, content: str) -> str:
     """
     Formats the retrieved documentation for display.
@@ -74,6 +78,7 @@ def format_documentation(title: str, content: str) -> str:
         The formatted documentation.
     """
     return f"--- {title} ---\n\n{content}"
+
 
 class DocRetriever:
     def __init__(self, config):

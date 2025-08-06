@@ -46,5 +46,4 @@ class SystemTray:
             self.main_window.show()
 
     def open_settings(self):
-        # Placeholder for settings dialog
         pass

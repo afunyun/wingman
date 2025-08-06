@@ -3,8 +3,8 @@ import Xlib.display
 import subprocess
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 
+
 class LinuxAppDetector(QObject):
-    # Emits the application name and a geometry dict {"x": int, "y": int, "width": int, "height": int}
     app_changed = pyqtSignal(str, dict)
 
     def __init__(self):
@@ -17,7 +17,6 @@ class LinuxAppDetector(QObject):
     def start(self, interval=1000):
         self.timer.start(interval)
 
-    def stop(self):
         self.timer.stop()
 
     def check_active_window(self):
@@ -30,8 +29,10 @@ class LinuxAppDetector(QObject):
 
     def get_active_window_info(self):
         root = self.display.screen().root
-        window_id = root.get_full_property(self.display.intern_atom('_NET_ACTIVE_WINDOW'), Xlib.X.AnyPropertyType).value[0]
-        window = self.display.create_resource_object('window', window_id)
+        window_id = root.get_full_property(
+            self.display.intern_atom("_NET_ACTIVE_WINDOW"), Xlib.X.AnyPropertyType
+        ).value[0]
+        window = self.display.create_resource_object("window", window_id)
 
         title = self._get_window_title(window)
         pid = self._get_window_pid(window)
@@ -40,14 +41,13 @@ class LinuxAppDetector(QObject):
         geometry = self._get_window_geometry(window)
 
         if "gnome-terminal" in process_name:
-            # Special handling for terminal windows
             app_name = self._get_terminal_command(pid) or app_name
 
         return {
             "title": title,
             "app_name": app_name,
             "process_name": process_name,
-            "geometry": geometry
+            "geometry": geometry,
         }
 
     def _get_window_title(self, window):
@@ -58,7 +58,9 @@ class LinuxAppDetector(QObject):
 
     def _get_window_pid(self, window):
         try:
-            pid_prop = window.get_full_property(self.display.intern_atom('_NET_WM_PID'), Xlib.X.AnyPropertyType)
+            pid_prop = window.get_full_property(
+                self.display.intern_atom("_NET_WM_PID"), Xlib.X.AnyPropertyType
+            )
             if pid_prop:
                 return pid_prop.value[0]
         except Xlib.error.XError:
@@ -87,18 +89,15 @@ class LinuxAppDetector(QObject):
         """Return a dict with absolute geometry taking frame extents into account."""
         try:
             geom = window.get_geometry()
-            # Translate window coordinates to root window (absolute screen position)
             abs_coords = window.translate_coords(self.display.screen().root, 0, 0)
-            # translate_coords returns a TranslateCoords object with x, y attributes
             x = abs_coords.x
             y = abs_coords.y
             width = geom.width
             height = geom.height
-            # Adjust for frame extents if available
             try:
                 frame_prop = window.get_full_property(
-                    self.display.intern_atom('_NET_FRAME_EXTENTS'),
-                    Xlib.X.AnyPropertyType
+                    self.display.intern_atom("_NET_FRAME_EXTENTS"),
+                    Xlib.X.AnyPropertyType,
                 )
                 if frame_prop and len(frame_prop.value) >= 4:
                     left, right, top, bottom = frame_prop.value[:4]
@@ -108,7 +107,12 @@ class LinuxAppDetector(QObject):
                     height += top + bottom
             except Xlib.error.XError:
                 pass
-            return {"x": int(x), "y": int(y), "width": int(width), "height": int(height)}
+            return {
+                "x": int(x),
+                "y": int(y),
+                "width": int(width),
+                "height": int(height),
+            }
         except Xlib.error.XError:
             return {"x": 0, "y": 0, "width": 0, "height": 0}
 
@@ -118,18 +122,20 @@ class LinuxAppDetector(QObject):
         This is a bit of a hack and might not be reliable.
         """
         try:
-            # Find the child process of the terminal
-            # This assumes the shell is a direct child of the terminal process
-            children_pids = subprocess.check_output(['pgrep', '-P', str(pid)]).decode().split()
+            children_pids = (
+                subprocess.check_output(["pgrep", "-P", str(pid)]).decode().split()
+            )
             if children_pids:
-                # Let's take the first child, which should be the shell
                 shell_pid = children_pids[0]
-                # Now find the child of the shell
-                command_pids = subprocess.check_output(['pgrep', '-P', str(shell_pid)]).decode().split()
+                command_pids = (
+                    subprocess.check_output(["pgrep", "-P", str(shell_pid)])
+                    .decode()
+                    .split()
+                )
                 if command_pids:
                     command_pid = command_pids[0]
                     with open(f"/proc/{command_pid}/cmdline", "r") as f:
-                        return f.read().strip().replace('\x00', ' ')
+                        return f.read().strip().replace("\x00", " ")
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
         return None
