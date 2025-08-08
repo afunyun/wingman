@@ -1,42 +1,19 @@
 import sys
-import os
-import json
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QCursor
+
 from ui.main_window import MainWindow
 from ui.system_tray import SystemTray
 from core.app_detector import LinuxAppDetector as AppDetector
 from core.doc_retriever import DocRetriever
-
-
-class Config:
-    def __init__(self, path="config.json"):
-        self.path = path
-        self.data = self.load()
-
-    def load(self):
-        if os.path.exists(self.path):
-            with open(self.path, "r") as f:
-                return json.load(f)
-        return {}
-
-    def get(self, key, default=None):
-        return self.data.get(key, default)
-
-    def set(self, key, value):
-        self.data[key] = value
-        self.save()
-
-    def save(self):
-        with open(self.path, "w") as f:
-            json.dump(self.data, f, indent=4)
+from config import Config
 
 
 def main():
     """Main entry point for the wingman application."""
     app = QApplication(sys.argv)
 
+    # Use shared config persisted under ~/.config/wingman/config.json
     config = Config()
     app_detector = AppDetector()
     doc_retriever = DocRetriever(config)
@@ -73,7 +50,8 @@ def main():
     app_detector.start()
     main_window.show()
 
-    system_tray = SystemTray(app, main_window)
+    # Keep a reference on the main window to avoid GC
+    main_window.system_tray = SystemTray(app, main_window)
 
     poll_timer = QTimer()
     poll_state = {"last_geom": None, "stable_count": 0, "last_docked_geom": None}

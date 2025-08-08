@@ -45,3 +45,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.txt", "*.md"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["main", "config"]
